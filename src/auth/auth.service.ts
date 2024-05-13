@@ -60,5 +60,6 @@ export class AuthService {
     }
     delete user.hashedPassword;
     return user;
+    // This is the basic authentication
   }
 }
