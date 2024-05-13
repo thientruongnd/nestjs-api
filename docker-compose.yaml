@@ -1,0 +1,17 @@
+# We create a Docker Compose file with a single service called "app"
+version: "3.8"
+services:
+  dev-database:
+    image: postgres:15.0
+    container_name: dev-database
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: testdb
+  #Create container, network,... from docker-compose.yaml file
+  # -d: detach mode
+  #docker-compose up -d
+ #docker-compose up -d dev-database
+ # docker log
