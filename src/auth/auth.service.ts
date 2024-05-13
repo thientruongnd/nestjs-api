@@ -4,20 +4,22 @@
  * Function Name
  * */
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { User, Note } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+
 @Injectable({})
 export class AuthService {
-  constructor(private prismaService: PrismaService) {}
-  doSomething() {
-    console.log('Auth service do something!');
-  }
+  constructor(
+    private jwtService: JwtService,
+    private prismaService: PrismaService,
+    private configService: ConfigService,
+  ) {}
+
   async register(authDto: AuthDto) {
-    // generate hash password  to hashPassword
     const hashedPassword = await argon.hash(authDto.password);
-    // insert data to database
     try {
       const user = await this.prismaService.user.create({
         data: {
@@ -26,22 +28,18 @@ export class AuthService {
           firstName: '',
           lastName: '',
         },
-        // only select id, email, createdAt
         select: {
           id: true,
           email: true,
           createdAt: true,
         },
       });
-      // you should add constraints "unique" to email
-      return user;
+      return this.convertToJwtString(user.id, user.email);
     } catch (err) {
       if (err.code === 'P2002') {
-        throw new ForbiddenException('Error email already exist');
+        throw new ForbiddenException('Email đã tồn tại');
       }
-      return {
-        error: err,
-      };
+      throw err;
     }
   }
 
@@ -52,14 +50,27 @@ export class AuthService {
       },
     });
     if (!user) {
-      throw new ForbiddenException('Error email or password');
+      throw new ForbiddenException('Email hoặc mật khẩu không chính xác');
     }
+
     const pwMatches = await argon.verify(user.hashedPassword, authDto.password);
     if (!pwMatches) {
-      throw new ForbiddenException('Error email or password');
+      throw new ForbiddenException('Email hoặc mật khẩu không chính xác');
     }
+
     delete user.hashedPassword;
-    return user;
-    // This is the basic authentication
+    return await this.convertToJwtString(user.id, user.email);
+  }
+
+  async convertToJwtString(userId: number, email: string): Promise<string> {
+    const payload = {
+      sub: userId,
+      email,
+    };
+
+    return this.jwtService.signAsync(payload, {
+      expiresIn: '10m',
+      secret: this.configService.get('JWT_SECRET'),
+    });
   }
 }

@@ -4,9 +4,7 @@ import { AuthDto } from './dto'; //import a "folder"
 @Controller('auth')
 export class AuthController {
   // auth service is automatically created when initialization the controller
-  constructor(private authService: AuthService) {
-    authService.doSomething();
-  }
+  constructor(private authService: AuthService) {}
   // some request from client
   @Post('register') // register a new user
   // body type must be a "Data Transfer Object" - DTO
