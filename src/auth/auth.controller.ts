@@ -10,13 +10,13 @@ export class AuthController {
   // some request from client
   @Post('register') // register a new user
   // body type must be a "Data Transfer Object" - DTO
-  register(@Body() body: AuthDto) {
-    // not validate using class-validator AND class-transformer
-    return this.authService.register();
+  register(@Body() authDto: AuthDto) {
+    // body type must be a "Data Transfer Object" - DTO
+    return this.authService.register(authDto);
   }
   @Post('login') // login at a user
-  login() {
-    return this.authService.login();
+  login(@Body() authDto: AuthDto) {
+    return this.authService.login(authDto);
   }
 }
 `

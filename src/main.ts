@@ -5,7 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   console.log('this is bootstrap to add middleware HERE ');
-  //app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe());
   // add middleware HERE
   await app.listen(3000);
 }

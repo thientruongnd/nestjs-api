@@ -3,7 +3,7 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+//  npx prisma migrate dev
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,20 +14,30 @@ datasource db {
 }
 model User {
   id Int @id @default(autoincrement())
-  email String
+  email String @unique
   hashedPassword String
-  firstName String
-  lastName String
+  firstName String?   // can be null(optional)
+  lastName String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // relationship
+  notes    Note[]
+
+  @@map("users") // users id "table's name " in Postgres SQL
 }
+// One user can "write" Many notes
 model Note {
   id Int @id @default(autoincrement())
-  title String
-  description String
-  url String
+  title String?
+  description String?
+  url String?
   // othe fields ...
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // relationship
+  userId Int // like "foreign key"
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notes") // notes id "table's name " in Postgres SQL
 
 }
