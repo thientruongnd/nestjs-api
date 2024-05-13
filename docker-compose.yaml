@@ -15,3 +15,5 @@ services:
   #docker-compose up -d
  #docker-compose up -d dev-database
  # docker log
+ # how to remove container+volumes
+ # docker compose rm dev-database --stop --force --volumes
