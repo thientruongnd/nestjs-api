@@ -15,4 +15,13 @@ export class PrismaService extends PrismaClient {
     });
     console.log('this log', JSON.stringify(configService));
   }
+  cleanDatabase() {
+    console.log('this log : cleanDatabase');
+    // In a 1-N relation, delete N firstly, then delete "1"
+    return this.$transaction([
+      // two commands in one transaction
+      this.note.deleteMany(),
+      this.user.deleteMany(),
+    ]);
+  }
 }

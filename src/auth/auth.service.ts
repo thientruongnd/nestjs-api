@@ -25,8 +25,8 @@ export class AuthService {
         data: {
           email: authDto.email,
           hashedPassword: hashedPassword,
-          firstName: '',
-          lastName: '',
+          firstName: authDto?.firstName || '',
+          lastName: authDto?.lastName || '',
         },
         select: {
           id: true,
@@ -34,7 +34,7 @@ export class AuthService {
           createdAt: true,
         },
       });
-      return this.convertToJwtString(user.id, user.email);
+      return this.signJwtToke(user.id, user.email);
     } catch (err) {
       if (err.code === 'P2002') {
         throw new ForbiddenException('Email đã tồn tại');
@@ -59,18 +59,24 @@ export class AuthService {
     }
 
     delete user.hashedPassword;
-    return await this.convertToJwtString(user.id, user.email);
+    return await this.signJwtToke(user.id, user.email);
   }
 
-  async convertToJwtString(userId: number, email: string): Promise<string> {
+  async signJwtToke(
+    userId: number,
+    email: string,
+  ): Promise<{ accessToken: string }> {
     const payload = {
       sub: userId,
       email,
     };
 
-    return this.jwtService.signAsync(payload, {
+    const jwtString = await this.jwtService.signAsync(payload, {
       expiresIn: '10m',
       secret: this.configService.get('JWT_SECRET'),
     });
+    return {
+      accessToken: jwtString,
+    };
   }
 }
